@@ -68,4 +68,7 @@ def run_dna_rna_tools(*seqs):
             print(seq, ' - isnt seq')
     if result_seq != []:
         print(result_seq)
-        return result_seq
+
+
+
+
