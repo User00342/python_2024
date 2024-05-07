@@ -11,9 +11,6 @@ for i in range(len(gene_map.Кодон)):
         if gene_map.Аминокислота[i] == gene_map['Аминокислота.1'][j]:
             gene_map.AK[i] = gene_map.Сокращение[j]
 
-seq = 'fli'
-SEQ = seq.upper()
-
 
 # восстановление последовательности
 def DNA_karta(seq):
@@ -28,5 +25,22 @@ def DNA_karta(seq):
     return DNA_seq
 
 
-DNA_karta(SEQ)
+def letter_pie(SEQ):
+    # Подсчет количества аминокислот в заданной последователсти seq и визуализация результата
+
+    # составление словарика с количеством аминокислот в последовательности
+    AK_counts_dict = {}
+    for letter in SEQ:
+        if letter in AK_counts_dict:
+            AK_counts_dict[letter] += 1
+        else:
+            AK_counts_dict[letter] = 1
+
+    print('В представленной последовательности', len(AK_counts_dict), 'видов аминокислот.')
+
+    # мини-визуализация
+    plt.pie(list(AK_counts_dict.values()), labels=list(AK_counts_dict.keys()), autopct='%1.1f%%', shadow=True,
+            wedgeprops={'width': 0.2, 'lw': 1, 'ls': '--', 'edgecolor': "k"})
+    plt.show()
+    return AK_counts_dict
 
