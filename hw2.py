@@ -1,8 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import logging
 
 
-print('')
+# подготовка материала
 
 gene_map = pd.read_csv('ЯКарта.csv')
 
@@ -14,13 +15,11 @@ for i in range(len(gene_map.Кодон)):
             gene_map.AK[i] = gene_map.Сокращение[j]
 
 
-
-# Проверка и подготовка:
-
-def is_ak(*seqs, alphabet_AK = set('ARNDCQEGHILKMFPSTWYV')):
+def is_ak(*seqs):
+# Проверка являются ли последовательности аминокислотами
+    alphabet_AK = set('ARNDCQEGHILKMFPSTWYV')
     answer = []
     for seq in seqs:
-        print(seq)
         seq = set(seq.upper())
         if seq <= alphabet_AK:
             answer.append('jup')
@@ -30,9 +29,10 @@ def is_ak(*seqs, alphabet_AK = set('ARNDCQEGHILKMFPSTWYV')):
 
 
 
+# вспомогательные функции
 
-# восстановление последовательности
-def DNA_karta(seq):
+def DNA_karta(seq): 
+# функция восстановления последовательности, подбор триплетов с помощью генетической карты (gene_map)
     all_variants = 1
     DNA_seq = ''
     for i in seq:
@@ -46,8 +46,7 @@ def DNA_karta(seq):
 
 def letter_pie(SEQ):
     # Подсчет количества аминокислот в заданной последователсти seq и визуализация результата
-
-    # составление словарика с количеством аминокислот в последовательности
+    # составление словарика(AK_counts_dict) с количеством каждой аминокислоты в последовательности
     AK_counts_dict = {}
     for letter in SEQ:
         if letter in AK_counts_dict:
@@ -142,12 +141,24 @@ def Needlman_Wunsch(ak1, ak2):
         point = path[point][:2]
     return al_frame, result_al1, result_al2
 
-letter_pie('asda')
-print(is_ak('as3s','aaa'))
-
 
 
 
 
 # Основная функция
+
+def AK_function(*args):
+    result = []
+    i=0
+    *seqs, operation = args
+    isAKseq = is_ak(seqs)
+    for seq in seqs:
+        if isAKseq[i] == ('no, don`t do that'):
+            break
+        else:
+            if operation ==
+
+
+
+AK_function('as','asdf','asf','23')
 
