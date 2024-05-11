@@ -2,8 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-print('Hello, Ivan!')
-AK = input('coise')
+print('')
+
 gene_map = pd.read_csv('ЯКарта.csv')
 
 # преобразование файла, нужно будет сохранить и использовать один и тот же, названия столбцов поменять
@@ -12,6 +12,23 @@ for i in range(len(gene_map.Кодон)):
     for j in range(len(gene_map.Кодон)):
         if gene_map.Аминокислота[i] == gene_map['Аминокислота.1'][j]:
             gene_map.AK[i] = gene_map.Сокращение[j]
+
+
+
+# Проверка и подготовка:
+
+def is_ak(*seqs, alphabet_AK = set('ARNDCQEGHILKMFPSTWYV')):
+    answer = []
+    for seq in seqs:
+        print(seq)
+        seq = set(seq.upper())
+        if seq <= alphabet_AK:
+            answer.append('jup')
+        else:
+            answer.append('no, don`t do that')
+    return answer
+
+
 
 
 # восстановление последовательности
@@ -46,7 +63,15 @@ def letter_pie(SEQ):
     plt.show()
     return AK_counts_dict
 
-
+def palindrom(seq):
+    # функция проверяет, является ли последовательность палиндромом
+    ka = seq[:len(seq)//2:-1]
+    ak = seq[:len(seq)//2]
+    if ak == ka:
+        result = 'palindrom'
+    else:
+        result = "isn't palindrom"
+    return result
 
 def Needlman_Wunsch(ak1, ak2):
     #     Воссоздание знаменитого алгоритма Нидлмана-Вунша, его нечитабельная версия.
@@ -118,3 +143,11 @@ def Needlman_Wunsch(ak1, ak2):
     return al_frame, result_al1, result_al2
 
 letter_pie('asda')
+print(is_ak('as3s','aaa'))
+
+
+
+
+
+# Основная функция
+
