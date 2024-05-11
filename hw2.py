@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+
 
 print('Hello, Ivan!')
 AK = input('coise')
@@ -45,57 +47,74 @@ def letter_pie(SEQ):
     return AK_counts_dict
 
 
-ak1 = 'gcatgcg'
-ak2 = 'gattaca'
-word1 = ['']
-word2 = ['']
-path = {'00': '00'}
-result_al1 = ''
-result_al2 = ''
 
-for letter in ak1:
-    word1.append(letter)
-for letter in ak2:
-    word2.append(letter)
+def Needlman_Wunsch(ak1, ak2):
+    #     Воссоздание знаменитого алгоритма Нидлмана-Вунша, его нечитабельная версия.
+    #     al_frame - матрица схожести; path - словарь пути алгоритма
 
-al_frame = pd.DataFrame(columns=word1, index=word2)
-al_frame.iloc[0][0] = 0
-for i in range(1, len(word1)):
-    al_frame.iloc[0, i] = al_frame.iloc[0, i - 1] - 1
-for j in range(1, len(word2)):
-    al_frame.iloc[j, 0] = al_frame.iloc[j - 1, 0] - 1
+    #     Функция словно не работала. Затем при проверке работала. А потом опять не работала. Я не понимаю, работает она или нет.
+    #     Код слишком сумбурен, его следует разделить на несколько функций и оптимизировать. Думала разукрасить ячейки пути, но не получилось :(
 
-for i in range(1, len(word1)):
+    ak1 = ak1.lower
+    ak2 = ak2.lower
+    word1 = ['']
+    word2 = ['']
+    path = {'00': '00'}
+    result_al1 = ''
+    result_al2 = ''
+
+    for letter in ak1:
+        word1.append(letter)
+    for letter in ak2:
+        word2.append(letter)
+
+    al_frame = pd.DataFrame(columns=word1, index=word2)
+    al_frame.iloc[0][0] = 0
+    for i in range(1, len(word1)):
+        al_frame.iloc[0, i] = al_frame.iloc[0, i - 1] - 1
+        path[str(0) + str(i)] = (str(0) + str(i - 1) + 'l')
     for j in range(1, len(word2)):
-        a = al_frame.iloc[j, i - 1]
-        b = al_frame.iloc[j - 1, i]
-        c = al_frame.iloc[j - 1, i - 1]
-        if word1[i] == word2[j]:
-            al_frame.iloc[j, i] = max(a - 1, b - 1, c + 1)
-            if c + 1 == max(a - 1, b - 1, c + 1):
-                path[str(j) + str(i)] = (str(j - 1) + str(i - 1) + 'd')
-            elif b - 1 == max(a - 1, b - 1, c + 1):
-                path[str(j) + str(i)] = (str(j - 1) + str(i) + 'v')
+        al_frame.iloc[j, 0] = al_frame.iloc[j - 1, 0] - 1
+        path[str(j) + str(0)] = (str(j - 1) + str(0) + 'v')
+
+    for i in range(1, len(word1)):
+        for j in range(1, len(word2)):
+            a = al_frame.iloc[j, i - 1]
+            b = al_frame.iloc[j - 1, i]
+            c = al_frame.iloc[j - 1, i - 1]
+            if word1[i] == word2[j]:
+                al_frame.iloc[j, i] = max(a - 1, b - 1, c + 1)
+                if c + 1 == max(a - 1, b - 1, c + 1):
+                    path[str(j) + str(i)] = (str(j - 1) + str(i - 1) + 'd')
+                elif b - 1 == max(a - 1, b - 1, c + 1):
+                    path[str(j) + str(i)] = (str(j - 1) + str(i) + 'v')
+                else:
+                    path[str(j) + str(i)] = (str(j) + str(i - 1) + 'l')
             else:
-                path[str(j) + str(i)] = (str(j) + str(i - 1) + 'l')
+                al_frame.iloc[j, i] = max(a, b, c) - 1
+                if c - 1 == max(a - 1, b - 1, c - 1):
+                    path[str(j) + str(i)] = (str(j - 1) + str(i - 1) + 'd')
+                elif b - 1 == max(a - 1, b - 1, c - 1):
+                    path[str(j) + str(i)] = (str(j - 1) + str(i) + 'v')
+                else:
+                    path[str(j) + str(i)] = (str(j) + str(i - 1) + 'l')
+
+    point = str(j) + str(i)
+
+    while path[point] != '00':
+        path_point = path[point][2]
+        j = point[0]
+        i = point[1]
+        if path_point == 'd':
+            result_al1 = word1[int(i)] + result_al1
+            result_al2 = word2[int(j)] + result_al2
+        elif path_point == 'v':
+            result_al1 = '_' + result_al1
+            result_al2 = word2[int(j)] + result_al2
         else:
-            al_frame.iloc[j, i] = max(a, b, c) - 1
-            if c - 1 == max(a - 1, b - 1, c - 1):
-                path[str(j) + str(i)] = (str(j - 1) + str(i - 1) + 'd')
-            elif b - 1 == max(a - 1, b - 1, c - 1):
-                path[str(j) + str(i)] = (str(j - 1) + str(i) + 'v')
-            else:
-                path[str(j) + str(i)] = (str(j) + str(i - 1) + 'l')
+            result_al1 = word1[int(i)] + result_al1
+            result_al2 = '_' + result_al2
+        point = path[point][:2]
+    return al_frame, result_al1, result_al2
 
-path_point = str(j) + str(i)
-# while path_point != '00':
-#    path = path_point[3]
-#    if path_point == 'd':
-
-
-print(result_al1)
-print(result_al2)
-al_frame
-
-
-
+letter_pie('asda')
