@@ -15,7 +15,7 @@ for i in range(len(gene_map.Кодон)):
             gene_map.AK[i] = gene_map.Сокращение[j]
 
 
-def is_ak(*seqs):
+def is_ak(seqs):
 # Проверка являются ли последовательности аминокислотами
     alphabet_AK = set('ARNDCQEGHILKMFPSTWYV')
     answer = []
@@ -54,17 +54,18 @@ def letter_pie(SEQ):
         else:
             AK_counts_dict[letter] = 1
 
-    print('В представленной последовательности', len(AK_counts_dict), 'видов аминокислот.')
+    message = ('В последовательности ' + SEQ + ' - ' + str(len(AK_counts_dict)) + ' видов аминокислот.')
 
     # мини-визуализация
-    plt.pie(list(AK_counts_dict.values()), labels=list(AK_counts_dict.keys()), autopct='%1.1f%%', shadow=True,
-            wedgeprops={'width': 0.2, 'lw': 1, 'ls': '--', 'edgecolor': "k"})
-    plt.show()
-    return AK_counts_dict
+
+    plt.show(plt.pie(list(AK_counts_dict.values()), labels=list(AK_counts_dict.keys()), autopct='%1.1f%%', shadow=True,
+            wedgeprops={'width': 0.2, 'lw': 1, 'ls': '--', 'edgecolor': "k"}))
+
+    return message
 
 def palindrom(seq):
     # функция проверяет, является ли последовательность палиндромом
-    ka = seq[:len(seq)//2:-1]
+    ka = seq[:(len(seq)-1)//2:-1]
     ak = seq[:len(seq)//2]
     if ak == ka:
         result = 'palindrom'
@@ -79,14 +80,14 @@ def Needlman_Wunsch(ak1, ak2):
     #     Функция словно не работала. Затем при проверке работала. А потом опять не работала. Я не понимаю, работает она или нет.
     #     Код слишком сумбурен, его следует разделить на несколько функций и оптимизировать. Думала разукрасить ячейки пути, но не получилось :(
 
-    ak1 = ak1.lower
-    ak2 = ak2.lower
+    ak1 = ak1.lower()
+    ak2 = ak2.lower()
     word1 = ['']
     word2 = ['']
     path = {'00': '00'}
     result_al1 = ''
     result_al2 = ''
-
+    
     for letter in ak1:
         word1.append(letter)
     for letter in ak2:
@@ -147,18 +148,33 @@ def Needlman_Wunsch(ak1, ak2):
 
 # Основная функция
 
-def AK_function(*args):
-    result = []
-    i=0
+# ты говорил, что операции можно вызывать с помощью словаря, но я не совсем поняла, как с его помощью компактно обращаться к другим функциям
+def AK_functions(*args):
     *seqs, operation = args
+
+    full_result = []
+    
+    i=0
     isAKseq = is_ak(seqs)
+    if (operation == 'Needlman_Wunsch' and len(seqs) >=2):
+        for seq1 in seqs:
+            for seq2 in seqs:
+                if seq1 != seq2:
+                    res = Needlman_Wunsch(seq1, seq2)
+                    full_result.append(res)
+        return full_result
+    
     for seq in seqs:
         if isAKseq[i] == ('no, don`t do that'):
-            break
+            result = (seq + "- isn't sequence")
         else:
-            if operation ==
+            if operation == 'DNA_karta':
+                result = DNA_karta(seq)
+            elif operation == 'palindrom':
+                result = palindrom(seq)
+            elif operation == 'letter_pie':
+                result = letter_pie(seq)
+        full_result.append(result)
+        i += 1
 
-
-
-AK_function('as','asdf','asf','23')
-
+    return full_result
