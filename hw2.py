@@ -147,7 +147,7 @@ def break_all(seq):
 # В нашем арсенале не так много рестриктаз... 
 # Способны ли мы остановить негодяев...? Настал час узнать ответ на этот вопрос...
 
-    # часть из другой функции, неплохо было бы переделать так, чтобы не приходилось записывать ее снова, займусь этим
+    # часть из другой функции, неплохо было бы переделать так, чтобы не приходилось записывать ее снова, займусь этим 
     DNA_seq = ''
     map_seq = seq.upper()
     for i in map_seq:
@@ -158,7 +158,7 @@ def break_all(seq):
     arsenal = {'restrict1': 'GAACT',
                'restrict2': 'CAGT',
                'restrict3': 'TTT',
-               'restrict4': 'ATTTG'}
+               'restrict4': 'GTGCTC'}
     sites_places = {}
     for site in arsenal.values():
         site_length = len(site)
@@ -215,7 +215,7 @@ def AK_functions(*args):
                 result = palindrom(seq)
             elif operation == 'letter_pie':
                 result = letter_pie(seq)
-            elif operarion == 'restriction':
+            elif operation == 'restriction':
                 result = break_all(seq)
         full_result.append(result)
         i += 1
