@@ -34,8 +34,7 @@ def DNA_karta(seq):
         variants = list(gene_map.Кодон[gene_map.AK == i])
         all_variants *= len(variants)
         DNA_seq = DNA_seq + variants[0]
-    message = 'аминокислотная последовательность ' + seq + ' могла получиться из ' + str(all_variants) + " различных нуклеотидных последовательностей. " + "Пример нуклеотидной последовательности: " + str(DNA_seq)
-    return message
+    return all_variants, DNA_seq
 
 
 def letter_pie(SEQ):
@@ -147,13 +146,6 @@ def break_all(seq):
 # В нашем арсенале не так много рестриктаз... 
 # Способны ли мы остановить негодяев...? Настал час узнать ответ на этот вопрос...
 
-    # часть из другой функции, неплохо было бы переделать так, чтобы не приходилось записывать ее снова, займусь этим 
-    DNA_seq = ''
-    map_seq = seq.upper()
-    for i in map_seq:
-        variants = list(gene_map.Кодон[gene_map.AK == i])
-        DNA_seq = DNA_seq + variants[0]
-    # идет до сюда 
     print(DNA_seq)
     arsenal = {'restrict1': 'GAACT',
                'restrict2': 'CAGT',
@@ -194,34 +186,41 @@ def AK_functions(*args):
 
     full_result = []
     result = ''
-    
+    work_seqs = []
     i=0
-    isAKseq = is_ak(seqs)
-    if (operation == 'Needlman_Wunsch' and len(seqs) <2):
-        full_result = 'Недостаточно последовательностей'
+    isAKseq = is_ak(seqs) # быть может результат работы функции было лучше сделать словариком?
+    
+    for k in range(len(seqs)):
+        if isAKseq[k] == 'jup':
+            work_seqs.append(seqs[k])
+        else: 
+            full_result.append(seqs[k] + " - isn't sequence")
+
+    if (operation == 'Needlman_Wunsch' and len(work_seqs) <2):
+        full_result.append('Недостаточно последовательностей')
         return full_result    
-    elif (operation == 'Needlman_Wunsch' and len(seqs) >=2):  #  отсутствует проверка, является ли последовательность аминокислотной. Надо будет переделать
-        for seq1 in seqs:
-            seqs.remove(seq1)
-            for seq2 in seqs:
+    elif (operation == 'Needlman_Wunsch' and len(work_seqs) >=2): 
+        for seq1 in work_seqs:
+            work_seqs.remove(seq1)
+            for seq2 in work_seqs:
                 if seq1 != seq2:
                     result = Needlman_Wunsch(seq1, seq2)
                     full_result.append(result)
         return full_result
 
     
-    for seq in seqs:
-        if isAKseq[i] == ('no, don`t do that'):
-            result = (seq + "- isn't sequence")
-        else:
-            if operation == 'DNA_karta':
-                result = DNA_karta(seq)
-            elif operation == 'palindrom':
-                result = palindrom(seq)
-            elif operation == 'letter_pie':
-                result = letter_pie(seq)
-            elif operation == 'restriction':
-                result = break_all(seq)
+    for seq in work_seqs:
+
+        if operation == 'DNA_karta':
+            pre_result = DNA_karta(seq)
+            result = ('аминокислотная последовательность ' + seq + ' могла получиться из ' + str(pre_result[0]) + " различных нуклеотидных последовательностей. " + "Пример нуклеотидной последовательности: " + str(pre_result[1]))
+        elif operation == 'palindrom':
+            result = palindrom(seq)
+        elif operation == 'letter_pie':
+            result = letter_pie(seq)
+        elif operation == 'restriction':
+            result = break_all(seq)
+        
         if result == '':
             full_result = 'Данная операция не найдена'
         else: 
