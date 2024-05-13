@@ -141,6 +141,44 @@ def Needlman_Wunsch(ak1, ak2):
         point = path[point][:2]
     return al_frame, result_al1, result_al2
 
+def break_all(seq):
+# Наш план - помешать тайной корпорации в создании генномодифицированного кузнечика. Злодеи целого мира сплотились, чтобы получить белок Х, 
+# который способен поработить прыгунов!
+# В нашем арсенале не так много рестриктаз... 
+# Способны ли мы остановить негодяев...? Настал час узнать ответ на этот вопрос...
+
+    # часть из другой функции, неплохо было бы переделать так, чтобы не приходилось записывать ее снова, займусь этим
+    DNA_seq = ''
+    map_seq = seq.upper()
+    for i in map_seq:
+        variants = list(gene_map.Кодон[gene_map.AK == i])
+        DNA_seq = DNA_seq + variants[0]
+    # идет до сюда 
+    print(DNA_seq)
+    arsenal = {'restrict1': 'GAACT',
+               'restrict2': 'CAGT',
+               'restrict3': 'TTT',
+               'restrict4': 'ATTTG'}
+    sites_places = {}
+    for site in arsenal.values():
+        site_length = len(site)
+        k = 1
+        for i in range(len(DNA_seq) - site_length + 1):
+            if DNA_seq[i:i+site_length] == site:
+                if arsenal.get(site) == '':
+                    sites_places[site] = i
+                else:
+                    sites_places[str(k) + '-й ' + site] = i
+                k += 1
+    if sites_places == {}:
+        sites_places = 'нам стоило подготовиться получше... '
+                
+                
+    return sites_places
+
+
+
+
 
 # Основная функция
 
@@ -177,7 +215,11 @@ def AK_functions(*args):
                 result = palindrom(seq)
             elif operation == 'letter_pie':
                 result = letter_pie(seq)
+            elif operarion == 'restriction':
+                result = break_all(seq)
         full_result.append(result)
         i += 1
+    if full_result == []:
+        full_result = 'Данная операция не найдена'
 
     return full_result
