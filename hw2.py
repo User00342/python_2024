@@ -193,10 +193,14 @@ def AK_functions(*args):
     *seqs, operation = args
 
     full_result = []
+    result = ''
     
     i=0
     isAKseq = is_ak(seqs)
-    if (operation == 'Needlman_Wunsch' and len(seqs) >=2):
+    if (operation == 'Needlman_Wunsch' and len(seqs) <2):
+        full_result = 'Недостаточно последовательностей'
+        return full_result    
+    elif (operation == 'Needlman_Wunsch' and len(seqs) >=2):  #  отсутствует проверка, является ли последовательность аминокислотной. Надо будет переделать
         for seq1 in seqs:
             seqs.remove(seq1)
             for seq2 in seqs:
@@ -204,6 +208,7 @@ def AK_functions(*args):
                     result = Needlman_Wunsch(seq1, seq2)
                     full_result.append(result)
         return full_result
+
     
     for seq in seqs:
         if isAKseq[i] == ('no, don`t do that'):
@@ -217,9 +222,11 @@ def AK_functions(*args):
                 result = letter_pie(seq)
             elif operation == 'restriction':
                 result = break_all(seq)
-        full_result.append(result)
+        if result == '':
+            full_result = 'Данная операция не найдена'
+        else: 
+            full_result.append(result)
         i += 1
-    if full_result == []:
-        full_result = 'Данная операция не найдена'
+
 
     return full_result
