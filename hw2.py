@@ -37,7 +37,7 @@ def DNA_karta(seq):
     return all_variants, DNA_seq
 
 
-def letter_pie(SEQ):
+def letter_pie(SEQ, plot = False):
 # подсчет количества аминокислот в заданной последователсти seq и визуализация результата
 # AK_counts_dict - словарь с указанием количества каждой аминокислоты в последовательности
     AK_counts_dict = {}
@@ -51,12 +51,13 @@ def letter_pie(SEQ):
 
 # мини-визуализация. Пыталась сделать так, чтобы также возвращалась через return, но питон оказался сильнее
 
-    plt.show(plt.pie(list(AK_counts_dict.values()), labels=list(AK_counts_dict.keys()), autopct='%1.1f%%', shadow=True,
-            wedgeprops={'width': 0.2, 'lw': 1, 'ls': '--', 'edgecolor': "k"}))
+    if plot:
+        plt.show(plt.pie(list(AK_counts_dict.values()), labels=list(AK_counts_dict.keys()), autopct='%1.1f%%', shadow=True, 
+                         wedgeprops={'width': 0.2, 'lw': 1, 'ls': '--', 'edgecolor': "k"}))
 
     return message
 
-def palindrom(seq):
+def is_palindrom(seq):
 # является ли последовательность палиндромом
     ka = seq[:(len(seq)-1)//2:-1]
     ak = seq[:len(seq)//2]
@@ -196,17 +197,18 @@ def AK_functions(*args):
         else: 
             full_result.append(seqs[k] + " - isn't sequence")
 
-    if (operation == 'Needlman_Wunsch' and len(work_seqs) <2):
-        full_result.append('Недостаточно последовательностей')
-        return full_result    
-    elif (operation == 'Needlman_Wunsch' and len(work_seqs) >=2): 
-        for seq1 in work_seqs:
-            work_seqs.remove(seq1)
-            for seq2 in work_seqs:
-                if seq1 != seq2:
-                    result = Needlman_Wunsch(seq1, seq2)
-                    full_result.append(result)
-        return full_result
+    if operation == 'Needlman_Wunsch':  
+        if len () < 2: 
+            full_result.append('Недостаточно последовательностей')
+            return full_result    
+        else: 
+            for seq1 in work_seqs:
+                work_seqs.remove(seq1)
+                for seq2 in work_seqs:
+                    if seq1 != seq2:
+                        result = Needlman_Wunsch(seq1, seq2)
+                        full_result.append(result)
+            return full_result
 
     
     for seq in work_seqs:
@@ -215,7 +217,7 @@ def AK_functions(*args):
             pre_result = DNA_karta(seq)
             result = ('аминокислотная последовательность ' + seq + ' могла получиться из ' + str(pre_result[0]) + " различных нуклеотидных последовательностей. " + "Пример нуклеотидной последовательности: " + str(pre_result[1]))
         elif operation == 'palindrom':
-            result = palindrom(seq)
+            result = is_palindrom(seq)
         elif operation == 'letter_pie':
             result = letter_pie(seq)
         elif operation == 'restriction':
