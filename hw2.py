@@ -84,7 +84,7 @@ def Needlman_Wunsch(ak1, ak2):
     ak2 = ak2.lower()
     word1 = ['']
     word2 = ['']
-    path = {'00': '00'} # словарь пути алгоритма, все еще без кортежей, этот момент я буду откладывать до последнего
+    path = {(0,0): (0,0)} # словарь пути алгоритма, все еще без кортежей, этот момент я буду откладывать до последнего
     result_al1 = ''
     result_al2 = ''
      
@@ -99,10 +99,10 @@ def Needlman_Wunsch(ak1, ak2):
     al_frame.iloc[0][0] = 0
     for i in range(1, len(word1)):
         al_frame.iloc[0, i] = al_frame.iloc[0, i - 1] - 1
-        path[str(0) + str(i)] = (str(0) + str(i - 1) + 'l')
+        path[(0,i)] = ((0, i - 1, 'l'))
     for j in range(1, len(word2)):
         al_frame.iloc[j, 0] = al_frame.iloc[j - 1, 0] - 1
-        path[str(j) + str(0)] = (str(j - 1) + str(0) + 'v')
+        path[(j, 0)] = ((j - 1, 0,'v'))
         
     # заполнение датафрейма по алгоритму Нидлмана-Вунша. Запись пути заполнения в словарь path
     for i in range(1, len(word1)):
@@ -113,24 +113,25 @@ def Needlman_Wunsch(ak1, ak2):
             if word1[i] == word2[j]:
                 al_frame.iloc[j, i] = max(a - 1, b - 1, c + 1)
                 if c + 1 == max(a - 1, b - 1, c + 1):
-                    path[str(j) + str(i)] = (str(j - 1) + str(i - 1) + 'd')
+                    path[(j,i)] = ((j - 1,i - 1,'d'))
                 elif b - 1 == max(a - 1, b - 1, c + 1):
-                    path[str(j) + str(i)] = (str(j - 1) + str(i) + 'v')
+                    path[(j,i)] = ((j - 1,i,'v'))
                 else:
-                    path[str(j) + str(i)] = (str(j) + str(i - 1) + 'l')
+                    path[(j,i)] = ((j,i - 1,'l'))
             else:
                 al_frame.iloc[j, i] = max(a, b, c) - 1
                 if c - 1 == max(a - 1, b - 1, c - 1):
-                    path[str(j) + str(i)] = (str(j - 1) + str(i - 1) + 'd')
+                    path[(j,i)] = ((j - 1,i - 1,'d'))
                 elif b - 1 == max(a - 1, b - 1, c - 1):
-                    path[str(j) + str(i)] = (str(j - 1) + str(i) + 'v')
+                    path[(j,i)] = ((j - 1,i,'v'))
                 else:
-                    path[str(j) + str(i)] = (str(j) + str(i - 1) + 'l')
+                    path[(j,i)] = ((j,i - 1,'l'))
 
-    point = str(j) + str(i)
-    
+    point = (j,i)
+#    return al_frame, path
+
     # Обратный ход по пути, запись выровненных последовательностей
-    while path[point] != '00':
+    while path[point] != (0,0):
         path_point = path[point][-1]
         j = point[0]
         i = point[1]
@@ -183,7 +184,7 @@ def break_all(seq):
 # Основная функция
 
 
-def AK_functions(*args, plot = False):
+def AK_functions(*args):
     '''
     DNA_karta - восстановление последовательности ДНК
     is_palindrom - проверка является ли палиндромом
@@ -194,10 +195,13 @@ def AK_functions(*args, plot = False):
 
     *seqs, operation = args
 
+
     full_result = [] # результат работы всех вызванных вспомогательных функций
     result = '' # результат работы одной вспомогательной функции
     work_seqs = []
-    i=0
+    func_names = ['DNA_karta', 'palindrom', 'letter_pie', 'restriction', 'Needlman_Wunsch']
+    functions = [DNA_karta, is_palindrom, letter_pie, break_all, Needlman_Wunsch]
+    functions_dict = dict(zip(func_names,functions))
     isAKseq = is_ak(seqs) # список являются ли последовательности аминокислотными
     
     for k in range(len(seqs)):
@@ -221,22 +225,17 @@ def AK_functions(*args, plot = False):
 
     
     for seq in work_seqs:
+        try: result = functions_dict[operation](seq)
+        except Exception: result = 'Данная операция не найдена. Возможные операции: DNA_karta, palindrom, letter_pie, restriction, Needlman_Wunsch'
 
         if operation == 'DNA_karta':
-            pre_result = DNA_karta(seq)
-            result = ('аминокислотная последовательность ' + seq + ' могла получиться из ' + str(pre_result[0]) + " различных нуклеотидных последовательностей. " + "Пример нуклеотидной последовательности: " + str(pre_result[1]))
-        elif operation == 'palindrom':
-            result = is_palindrom(seq)
-        elif operation == 'letter_pie':
-            result = letter_pie(seq)
-        elif operation == 'restriction':
-            result = break_all(seq)
-        
-        if result == '':
-            full_result = 'Данная операция не найдена'
-        else: 
-            full_result.append(result)
-        i += 1
+            result = ('аминокислотная последовательность ' + seq + ' могла получиться из ' + str(result[0]) + " различных нуклеотидных последовательностей. " + "Пример нуклеотидной последовательности: " + str(result[1]))
+
+        full_result.append(result)
+
 
 
     return full_result
+
+
+AK_functions('aaa','adf')
