@@ -238,4 +238,3 @@ def AK_functions(*args):
     return full_result
 
 
-AK_functions('aaa','adf')
