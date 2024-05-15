@@ -18,14 +18,21 @@
 
 ## Примеры использования
 
-letter_pie('asalkmss', plot = True)
+**letter_pie('asalkmss', plot = True)**
 
 ![изображение](https://github.com/MaslovaIrina/python_2024/assets/114800146/d0b06d20-e24e-4ee6-8a75-e4df5f5de602)
 ```
 В последовательности asalkmss - 5 видов аминокислот.
 ```
-break_all('aasdfgs')
+**break_all('aasdfgs')**
 
 ```
 '1-й TTT': 11, '2-й TTT': 12
+
+```
+**Needlman_Wunsch('aasdfgs', 'adasfkls')**
+![изображение](https://github.com/MaslovaIrina/python_2024/assets/114800146/e1762ff2-0ca3-4da0-ae44-a7bd9351326d)
+```
+'a_asdf_gs',
+'adas_fkls'
 ```
