@@ -6,10 +6,13 @@ import matplotlib.pyplot as plt
 gene_map = pd.read_csv('ЯНормальнаяКарта.csv')
 
 def is_ak(seqs):
-# Проверка являются ли последовательности аминокислотами. Кавычки почему-то не работают.
-# answer - список результатов работы функции
+
+    ''' 
+    Проверка являются ли последовательности аминокислотами. Кавычки теперь работают.
+    '''
+
     alphabet_AK = set('ARNDCQEGHILKMFPSTWYV')
-    answer = []
+    answer = [] # список результатов работы функции
     for seq in seqs:
         seq = set(seq.upper())
         if seq <= alphabet_AK:
@@ -23,24 +26,26 @@ def is_ak(seqs):
 # вспомогательные функции
 
 def DNA_karta(seq): 
-# функция восстановления последовательности, подбор триплетов
-# gene_map - датафрейм, генетическая карта
-# variants - возможные триплеты
-# all_variants - количество возможных вариантов получения заданной ак-последовательности
-    all_variants = 1
+    ''' 
+    функция восстановления последовательности, подбор триплетов
+    ''' 
+
+    all_variants = 1 # количество возможных вариантов получения заданной ак-последовательности
     DNA_seq = ''
     map_seq = seq.upper()
     for i in map_seq:
-        variants = list(gene_map.Кодон[gene_map.AK == i])
+        variants = list(gene_map.Кодон[gene_map.AK == i]) # gene_map - датафрейм, генетическая карта; variants - возможные триплеты
         all_variants *= len(variants)
         DNA_seq = DNA_seq + variants[0]
     return all_variants, DNA_seq
 
 
-def letter_pie(SEQ, plot = False):
-# подсчет количества аминокислот в заданной последователсти seq и визуализация результата
-# AK_counts_dict - словарь с указанием количества каждой аминокислоты в последовательности
-    AK_counts_dict = {}
+def letter_pie(SEQ, plot):
+    '''  
+    подсчет количества аминокислот в заданной последователсти seq и визуализация результата
+    ''' 
+
+    AK_counts_dict = {} # AK_counts_dict - словарь с указанием количества каждой аминокислоты в последовательности
     for letter in SEQ:
         if letter in AK_counts_dict:
             AK_counts_dict[letter] += 1
@@ -49,7 +54,7 @@ def letter_pie(SEQ, plot = False):
 
     message = ('В последовательности ' + SEQ + ' - ' + str(len(AK_counts_dict)) + ' видов аминокислот.')
 
-# мини-визуализация. Пыталась сделать так, чтобы также возвращалась через return, но питон оказался сильнее
+# мини-визуализация
 
     if plot:
         plt.show(plt.pie(list(AK_counts_dict.values()), labels=list(AK_counts_dict.keys()), autopct='%1.1f%%', shadow=True, 
@@ -58,7 +63,9 @@ def letter_pie(SEQ, plot = False):
     return message
 
 def is_palindrom(seq):
-# является ли последовательность палиндромом
+    ''' 
+    является ли последовательность палиндромом
+    '''
     ka = seq[:(len(seq)-1)//2:-1]
     ak = seq[:len(seq)//2]
     if ak == ka:
@@ -68,18 +75,16 @@ def is_palindrom(seq):
     return result
 
 def Needlman_Wunsch(ak1, ak2):
-#     Воссоздание знаменитого алгоритма Нидлмана-Вунша, его нечитабельная версия.
-#     al_frame - матрица схожести
-#     path - словарь пути алгоритма
+    '''
+    Воссоздание знаменитого алгоритма Нидлмана-Вунша, его нечитабельная версия.
 
-#     Функция словно не работала. Затем при проверке работала. А потом опять не работала. Я не понимаю, работает она или нет.
-#     Код слишком сумбурен, его следует разделить на несколько функций и оптимизировать. Думала разукрасить ячейки пути, но не получилось :(
+    '''
 
     ak1 = ak1.lower()
     ak2 = ak2.lower()
     word1 = ['']
     word2 = ['']
-    path = {'00': '00'}
+    path = {'00': '00'} # словарь пути алгоритма, все еще без кортежей, этот момент я буду откладывать до последнего
     result_al1 = ''
     result_al2 = ''
      
@@ -90,7 +95,7 @@ def Needlman_Wunsch(ak1, ak2):
         word2.append(letter)
 
     # создание и заполнение первых строк датафрейма. Запись пути заполнения в словарь path
-    al_frame = pd.DataFrame(columns=word1, index=word2)
+    al_frame = pd.DataFrame(columns=word1, index=word2) #  матрица схожести
     al_frame.iloc[0][0] = 0
     for i in range(1, len(word1)):
         al_frame.iloc[0, i] = al_frame.iloc[0, i - 1] - 1
@@ -126,7 +131,7 @@ def Needlman_Wunsch(ak1, ak2):
     
     # Обратный ход по пути, запись выровненных последовательностей
     while path[point] != '00':
-        path_point = path[point][2]
+        path_point = path[point][-1]
         j = point[0]
         i = point[1]
         if path_point == 'd':
@@ -142,12 +147,14 @@ def Needlman_Wunsch(ak1, ak2):
     return al_frame, result_al1, result_al2
 
 def break_all(seq):
-# Наш план - помешать тайной корпорации в создании генномодифицированного кузнечика. Злодеи целого мира сплотились, чтобы получить белок Х, 
-# который способен поработить прыгунов!
-# В нашем арсенале не так много рестриктаз... 
-# Способны ли мы остановить негодяев...? Настал час узнать ответ на этот вопрос...
+    '''
+    Наш план - помешать тайной корпорации в создании генномодифицированного кузнечика. Злодеи целого мира сплотились, чтобы получить белок Х, 
+    который способен поработить прыгунов!
+    В нашем арсенале не так много рестриктаз... 
+    Способны ли мы остановить негодяев...? Настал час узнать ответ на этот вопрос...
+    '''
 
-    print(DNA_seq)
+    DNA_seq = DNA_karta(seq)[-1]
     arsenal = {'restrict1': 'GAACT',
                'restrict2': 'CAGT',
                'restrict3': 'TTT',
@@ -176,20 +183,22 @@ def break_all(seq):
 # Основная функция
 
 
-def AK_functions(*args):
-# ты говорил, что операции можно вызывать с помощью словаря, но я не совсем поняла, как с его помощью компактно обращаться к другим функциям
-# isAKseq - список являются ли последовательности аминокислотными
-# operation - заданная команда
-# result - результат работы одной вспомогательной функции
-# full_result - результат работы всех вызванных вспомогательных функций
+def AK_functions(*args, plot = False):
+    '''
+    DNA_karta - восстановление последовательности ДНК
+    is_palindrom - проверка является ли палиндромом
+    letter_pie - подсчет количества различных аминокислот
+    break_all - поиск заданных сайтов рестрикции
+    Needlman_Wunsch - парное выравнивание
+    '''
 
     *seqs, operation = args
 
-    full_result = []
-    result = ''
+    full_result = [] # результат работы всех вызванных вспомогательных функций
+    result = '' # результат работы одной вспомогательной функции
     work_seqs = []
     i=0
-    isAKseq = is_ak(seqs) # быть может результат работы функции было лучше сделать словариком?
+    isAKseq = is_ak(seqs) # список являются ли последовательности аминокислотными
     
     for k in range(len(seqs)):
         if isAKseq[k] == 'jup':
@@ -198,7 +207,7 @@ def AK_functions(*args):
             full_result.append(seqs[k] + " - isn't sequence")
 
     if operation == 'Needlman_Wunsch':  
-        if len () < 2: 
+        if len (work_seqs) < 2: 
             full_result.append('Недостаточно последовательностей')
             return full_result    
         else: 
