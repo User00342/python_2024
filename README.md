@@ -31,6 +31,8 @@
 
 ```
 **Needlman_Wunsch('aasdfgs', 'adasfkls')**
+
+
 ![изображение](https://github.com/MaslovaIrina/python_2024/assets/114800146/e1762ff2-0ca3-4da0-ae44-a7bd9351326d)
 ```
 'a_asdf_gs',
