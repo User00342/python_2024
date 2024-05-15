@@ -20,8 +20,8 @@
 
 letter_pie('asalkmss', plot = True)
 
-```
 ![изображение](https://github.com/MaslovaIrina/python_2024/assets/114800146/d0b06d20-e24e-4ee6-8a75-e4df5f5de602)
+```
 В последовательности asalkmss - 5 видов аминокислот.
 ```
 break_all('aasdfgs')
