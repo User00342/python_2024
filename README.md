@@ -6,14 +6,14 @@ The **AK_functions** library allows you to study the primary sequence of a prote
 
 ## Import
 
-To run the 'AK_functions()', first import it as a module
+To run the `AK_functions()`, first import it as a module
 
-'''
+```
 import hw2
-'''
-and run its main function, 'AK_functions' function. This function provides interface for all 5 operations from 'functions_dict' dictionary. 
+```
+and run its main function, `AK_functions` function. This function provides interface for all 5 operations from `functions_dict` dictionary. 
 
-- First 'n' arguments - protein sequences
+- First `n` arguments - protein sequences
 - last one - operation from list: "palindrom", "letter_pie", "break_all", "DNA_karta", "Needlman_Wunsch"
 
 
