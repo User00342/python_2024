@@ -2,8 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# подготовка материала
-gene_map = pd.read_csv('ЯНормальнаяКарта.csv')
+
 
 def is_ak(seqs):
 
@@ -32,6 +31,7 @@ def DNA_karta(seq):
 
     all_variants = 1 # количество возможных вариантов получения заданной ак-последовательности
     DNA_seq = ''
+    gene_map = pd.read_csv('ЯНормальнаяКарта.csv')
     map_seq = seq.upper()
     for i in map_seq:
         variants = list(gene_map.Кодон[gene_map.AK == i]) # gene_map - датафрейм, генетическая карта; variants - возможные триплеты
@@ -203,7 +203,10 @@ def AK_functions(*args):
     functions = [DNA_karta, is_palindrom, letter_pie, break_all, Needlman_Wunsch]
     functions_dict = dict(zip(func_names,functions))
     isAKseq = is_ak(seqs) # список являются ли последовательности аминокислотными
-    
+
+    if operation not in functions_dict.keys():
+        return 'Данная операция не найдена. Возможные операции: DNA_karta, palindrom, letter_pie, restriction, Needlman_Wunsch'
+
     for k in range(len(seqs)):
         if isAKseq[k] == 'jup':
             work_seqs.append(seqs[k])
@@ -225,9 +228,7 @@ def AK_functions(*args):
 
     
     for seq in work_seqs:
-        try: result = functions_dict[operation](seq)
-        except Exception: result = 'Данная операция не найдена. Возможные операции: DNA_karta, palindrom, letter_pie, restriction, Needlman_Wunsch'
-
+        result = functions_dict[operation](seq)
         if operation == 'DNA_karta':
             result = ('аминокислотная последовательность ' + seq + ' могла получиться из ' + str(result[0]) + " различных нуклеотидных последовательностей. " + "Пример нуклеотидной последовательности: " + str(result[1]))
 

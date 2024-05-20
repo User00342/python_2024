@@ -17,7 +17,7 @@ and run its main function, `AK_functions` function. This function provides inter
 - last one - operation from list: "palindrom", "letter_pie", "break_all", "DNA_karta", "Needlman_Wunsch"
 
 
-## Возможности функции
+## Features of the function
 ### is_palindrom 
 A palindrome is a sequence of symbols that reads the same backwards as forwards. This function takes an amino acid sequence as an argument, checks whether it is a palindrome, and returns the result.
 ### letter_pie 
