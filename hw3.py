@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 def two_from_one(limit):
     '''
     создание нижней и верхней границы переменной
@@ -12,19 +9,24 @@ def two_from_one(limit):
 
 def del_def(seqs, del_names):
     '''
-    удаление из словаря строк по ключу
+    создание нового словаря на основе старого
     '''
-    for name in del_names:
-        del seqs[name]
-    return seqs
+    result_dict = {}
+    for name in seqs.keys():
+        if name not in del_names:
+            result_dict[name] = seqs[name]
+    return result_dict
 
-def add_verification(seqs, del_names, alphabet):    
+def check_nucl(seqs, del_names, alphabet = 'ATGCatgc'):
     nucleotides = set(alphabet)
+    for name in seqs.keys():
+        if (set(seqs[name][0]) <= nucleotides) == False:
+            del_names.append(name)
+    return del_names
     
+def check_equal_lengths(seqs, del_names):            
     for name in seqs.keys():    
         if len(seqs[name][0]) != len(seqs[name][1]):
-            del_names.append(name)
-        elif (set(seqs[name][0]) <= nucleotides) == False:
             del_names.append(name)
     return del_names
 
@@ -51,21 +53,18 @@ def check_length(seqs, del_names, lenght_bounds):
     return del_names
  
 def check_quality(seqs, del_names, quality_threshold):
-    ASCII_df = pd.read_csv('ASCII.csv')
-    ASCII_df.Dec = ASCII_df.Dec - 33
     
     for name in seqs.keys():
         sred_value = 0
         for letter in seqs[name][1]:
-            sred_value = sred_value + int(ASCII_df.Dec[ASCII_df.Character == letter])
+            sred_value = sred_value + ord(letter) - 33
         quality = sred_value/len(seqs[name][1])
         if quality < quality_threshold:
-            print(name)
             del_names.append(name)
     
     return del_names
 
-def main(seqs, gc_bounds = (0,100), lenght_bounds = (0,2**32), quality_threshold = 0, add_verif = False):
+def main(seqs, gc_bounds = (0,100), lenght_bounds = (0,2**32), quality_threshold = 0, additional_verifiaction = False):
 
     '''
     Фунция проверки fastq-последовательности по трем критериям:
@@ -88,8 +87,9 @@ def main(seqs, gc_bounds = (0,100), lenght_bounds = (0,2**32), quality_threshold
     Функция возвращает словарь, состоящих только из тех сиквенсов, которые прошли все условия.
     '''
     del_names = [] # список ключей строк, подлежащих удалению
-    if add_verif:
-        del_names = add_verification(seqs, del_names, alphabet='ATGCatgc')
+    if additional_verifiaction:
+        del_names = check_nucl(seqs, del_names)
+        del_names = check_equal_lengths(seqs, del_names)
     del_names = check_gc(seqs, del_names, gc_bounds)
     del_names = check_length(seqs,del_names, lenght_bounds)
     del_names = check_quality(seqs, del_names, quality_threshold)
