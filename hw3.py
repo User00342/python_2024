@@ -17,8 +17,8 @@ def del_def(seqs, del_names):
             result_dict[name] = seqs[name]
     return result_dict
 
-def check_nucl(seqs, del_names, alphabet = 'ATGCatgc'):
-    nucleotides = set(alphabet)
+def check_nucl(seqs, del_names):
+    nucleotides = set('ATGCatgc')
     for name in seqs.keys():
         if (set(seqs[name][0]) <= nucleotides) == False:
             del_names.append(name)
