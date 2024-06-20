@@ -1,5 +1,5 @@
 import datetime
-from abc import ABCMeta, abstractmethod 
+from abc import ABCMeta, abstractmethod, ABC 
 from Bio.SeqUtils import gc_fraction
 from Bio import SeqIO
 import statistics as stat
@@ -18,6 +18,8 @@ class DateError(Exception):
 class Booking():
     '''
     хранение информации о настоящем бронировании?
+    Мне кажется этот класс лучше смотрится с наследованием. Однако, как я понимаю из дисклеймера 3 - 
+    его в этом задании использовать не нужно. Мне кажется что-то я в этом задании сделала не так, оно смотрится некрасиво, но учитывая требования из описания...
     '''
     def __init__(self, device, name, date, start_time, end_time, schedule):
         self.equipment = device
@@ -33,7 +35,9 @@ class Booking():
             raise DateError('no such date')
             
     def is_intersect(self, start_time, end_time, device, date):
-
+        '''
+        функция проверки свободного времени
+        '''
         for i in range(len(schedule[device][date][0])):
             if not ((schedule[device][date][0][i] < start_time and schedule[device][date][1][i] <= start_time) or (schedule[device][date][0][i] >= end_time and schedule[device][date][1][i] > end_time)):
                 return False
@@ -59,12 +63,12 @@ class LabEquipment():
         Функция добавления новых значений даты и инвентаря, если они отсутствуют
         '''
         
-        if device not in prob.schedule.keys():
-            prob.schedule[device] = {}
-            print('we have new device: ', device)
-        if date not in prob.schedule[device].keys():
-            prob.schedule[device][date] = ([],[])
-            print('we have new date: ', date)
+        if device not in self.schedule.keys():
+            self.schedule[device] = {}
+            print ('we have new device: ', device)
+        if date not in self.schedule[device].keys():
+            self.schedule[device][date] = ([],[],[])
+            print ('we have new date: ', date)
         
         return self
     
@@ -77,7 +81,7 @@ class LabEquipment():
             
     def is_available(self, start_time, end_time, device, date):
         '''
-        проверка является ли время для брони свободным. В случае, если время занято, возращает имя забронировавшего человека.
+        Проверка является ли время для брони свободным. В случае, если время занято, возращает имя забронировавшего человека.
         '''
 
         for i in range(len(self.schedule[device][date][0])):
@@ -88,7 +92,7 @@ class LabEquipment():
        
     def add_time(self, start_time, end_time, device, date, name):
         '''
-        добавление новой брони в расписание, если время свободно. 
+        Побавление новой брони в расписание, если время свободно. 
         '''
         just_ones = self.is_available(start_time, end_time, device, date)
         
@@ -97,9 +101,9 @@ class LabEquipment():
             self.schedule[device][date][1].append(end_time)
             self.schedule[device][date][2].append(name)
         elif just_ones[1] == name:
-            print('Du hast das schon gemacht.')
+            return 'Du hast das schon gemacht.'
         else:
-            print('you can speak about this with ', just_ones[1])
+            return 'you can speak about this with ', just_ones[1]
         
         return self
       
@@ -115,7 +119,8 @@ class LabEquipment():
         else:
             self.error_masseges(device, date)
             
-        return self.add_time(start_time, end_time, device, date, name) # мне кажется было бы оптимальней читать некоторый файл с расписанием, а после выполнения функции результат перезаписывать в него же.
+        self.add_time(start_time, end_time, device, date, name) 
+        return None
     
     
 
@@ -142,7 +147,7 @@ class GenCodeInterpreter():
         bufer = ''
         our_place = 0
         errors = ''
-        print('init')
+
         try:
             for letter in code:
                 if letter == "A": our_place += 1
@@ -209,7 +214,6 @@ def meet_the_dunders():
 
 
 
-
 def two_from_one(limit):
     '''
     создание нижней и верхней границы переменной
@@ -249,38 +253,31 @@ class AlphabetError(Exception):
 class ComplementError(Exception):
     pass
 
-class BiologicalSequence():
-    
-    alphabet = ''
-    def __init__(self, seqs):
-        self.seqs = seqs
-        if all(map(self.check_alphabet, self.seqs)) == True:
-            return True
-        raise AlphabetError('Isn,t in alphabet')
+class BiologicalSequence(ABC):   #Вау, абстрактные методы и абстрактные классы это разные вещи. Этот класс существует только для теоретической халочки?
         
     @abstractmethod 
     def __len__(self):
-        return list(map(len, self.seqs)) 
+        pass
     
     @abstractmethod
-    def __getitem__(self, idx):
-        return [i[idx] if len(i) > idx else ' ' for i in self.seqs ]
+    def __getitem__(self):
+        pass
     
     @abstractmethod
-    def slice(self, from_letter, to_letter):
-        return [seq[from_letter:to_letter] if to_letter < len(seq) else seq[from_letter:] for seq in self.seqs]
+    def slice(self):
+        pass
    
     @abstractmethod
     def __str__(self):
-        return str(self.seqs)
+        pass
     
     @abstractmethod
     def __repr__(self):
-        return ' '.join(self.seqs)
+        pass
     
     @abstractmethod
     def check_alphabet(self, seq):
-        return set(seq) <= set(self.alphabet)
+        pass
 
     
     
@@ -291,9 +288,33 @@ class NucleicAcidSequence(BiologicalSequence):
     
     - gc_perc - подсчет процентного содержания гуанина и цитозина
     - seqs_complement - создание комплементарной цепи
+    - check_alphabet - функция проверки наличия введенных букв в алфавите
+    - slice - функция среза
     '''
-    def __init__(self,seqs):
-        super().__init__(seqs)
+    alphabet = ''
+    def __init__(self, seqs):
+        self.seqs = seqs
+        if all(map(self.check_alphabet, self.seqs)) == True:
+            return True
+        raise AlphabetError('Isn,t in alphabet')
+        
+    def __len__(self):
+        return list(map(len, self.seqs)) 
+    
+    def __getitem__(self, idx):
+        return [i[idx] if len(i) > idx else ' ' for i in self.seqs ]
+    
+    def slice(self, from_letter, to_letter):
+        return [seq[from_letter:to_letter] if to_letter < len(seq) else seq[from_letter:] for seq in self.seqs]
+   
+    def __str__(self):
+        return str(self.seqs)
+    
+    def __repr__(self):
+        return ' '.join(self.seqs)
+    
+    def check_alphabet(self, seq):
+        return set(seq) <= set(self.alphabet)
         
     def gc_perc(self):
         return [100 * gc_fraction(seq) for seq in self.seqs]
@@ -320,7 +341,6 @@ class DNASequence(NucleicAcidSequence):
     def __init__(self,seqs):
         super().__init__(seqs)
         
-#    @staticmethod
     def replace_trans(self,seq):
         seq = seq.replace('T', 'U')
         seq = seq.replace('t', 'u')
