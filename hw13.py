@@ -82,7 +82,7 @@ class LabEquipment():
         
         return self
     
-    def error_masseges(self, device, date):
+    def check_existence error_masseges(self, device, date):
         
         if device not in self.schedule.keys():
             raise EquipmentError('no such equipment')
@@ -129,11 +129,7 @@ class LabEquipment():
             self.error_masseges(device, date)
         
         self.add_time(start_time, end_time, device, date, name) 
-
-    
-
-    
-    
+  
 
     
 class GenCodeInterpreter():
@@ -222,10 +218,9 @@ def meet_the_dunders():
 
     product = new_arr.__matmul__(new_arr.T)
 
-    if (product[0].__lt__(1000)).all().__and__((product[2].__gt__(1000)).any()):
+    if (product[0].__lt__(1000)).all().__and__((product.__getitem__(2).__gt__(1000)).any()):
         res = ((product.mean().__floordiv__(10)).__mod__(100)).__int__()
     return res
-
 
 
 
@@ -252,16 +247,20 @@ def filter_fastq(file_name, gc_bounds = (0,100), lenght_bounds = (0,2**32), qual
     
     '''
     good_sequences = [] 
-    res = list(map(two_from_one, [gc_bounds, lenght_bounds, quality_threshold]))
-    gc_bounds, lenght_bounds, quality_threshold = res[0], res[1], res[2]
+    gc_bounds, lenght_bounds, quality_threshold = list(map(two_from_one, [gc_bounds, lenght_bounds, quality_threshold]))
     
-    for record in SeqIO.parse(file_name, "fastq"):
-        if (lenght_bounds[0] <=  len(record.seq) <= lenght_bounds[1]) and (gc_bounds[0] <=  100 * gc_fraction(record.seq) <= gc_bounds[1]) and (quality_threshold[0] <= stat.mean((record.letter_annotations["phred_quality"])) <= quality_threshold[1]):
-            good_sequences.append(record)
-    SeqIO.write(good_sequences, "good_seqs.fastq", "fastq")
+    def check_lenght(record, lenght_bounds):
+        return lenght_bounds[0] <=  len(record.seq) <= lenght_bounds[1]
+    def check_gc(record, gc_bounds):
+        return gc_bounds[0] <=  100 * gc_fraction(record.seq) <= gc_bounds[1]
+    def check_quality(record, quality_threshold):
+        return quality_threshold[0] <= stat.mean((record.letter_annotations["phred_quality"])) <= quality_threshold[1]
+    
+    with open('fastq.fastq') as file:
+        for record in SeqIO.parse(file, "fastq"):
+            if check_lenght(record, lenght_bounds) and check_gc(record, gc_bounds) and check_quality(record, quality_threshold):
+                good_sequences.append(record)
     return "Found %i good sequences" % len(good_sequences)
-
-
 
 
 
@@ -311,6 +310,7 @@ class NucleicAcidSequence(BiologicalSequence):
     Дааа, dunder методы не все работают так, как следовало бы, потому что список. Но зато результат возвращает удобно, иначе... Мы списались, я не дописала
     '''
     alphabet = ''
+    complement_alphabet = ''
     def __init__(self, seqs):
         self.seqs = seqs
         if all(map(self.check_alphabet, self.seqs)) == True:
