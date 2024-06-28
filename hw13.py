@@ -43,14 +43,14 @@ class Booking():
         elif date not in schedule[device].keys():
             raise DateError('no such date')
             
-    def is_intersect(self, start_time, end_time, device, date, other_booking):
+    def is_intersect(self, other_booking):
         '''
         функция проверки свободного времени
         '''
-        if not ((other_booking.start_time < start_time and other_booking.end_time <= start_time) or (other_booking.start_time >= end_time and other_booking.end_time > end_time)):
+        if not ((other_booking.start_time < self.start_time and other_booking.end_time <= self.start_time) or (other_booking.start_time >= self.end_time and other_booking.end_time > self.end_time)):
             return False
         return True
-    
+        
     
 class LabEquipment():
     '''
