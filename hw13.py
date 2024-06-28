@@ -66,7 +66,7 @@ class LabEquipment():
     def __init__(self, schedule):
         self.schedule = schedule
         
-    def __new_cases(self, device, date):
+    def _new_cases(self, device, date):
         '''
         Функция добавления новых значений даты и инвентаря, если они отсутствуют
         '''
