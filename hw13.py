@@ -15,12 +15,20 @@ class EquipmentError(Exception):
 class DateError(Exception):
     pass
 
+class BookingError(Exception):
+    pass
+
 class Booking():
     '''
     хранение информации о настоящем бронировании?
     Мне кажется этот класс лучше смотрится с наследованием. Однако, как я понимаю из дисклеймера 3 - 
     его в этом задании использовать не нужно. Мне кажется что-то я в этом задании сделала не так, оно смотрится некрасиво, но учитывая требования из описания...
     Вероятно, завтра буду думать как его переделать
+    
+    date - дата брони 
+    start_time - время начала брони
+    end_time - время окончания брони
+    equipment - наименование инструмента
     '''
     def __init__(self, device, name, date, start_time, end_time, schedule):
         self.equipment = device
@@ -35,13 +43,12 @@ class Booking():
         elif date not in schedule[device].keys():
             raise DateError('no such date')
             
-    def is_intersect(self, start_time, end_time, device, date):
+    def is_intersect(self, start_time, end_time, device, date, other_booking):
         '''
         функция проверки свободного времени
         '''
-        for i in range(len(schedule[device][date][0])):
-            if not ((schedule[device][date][0][i] < start_time and schedule[device][date][1][i] <= start_time) or (schedule[device][date][0][i] >= end_time and schedule[device][date][1][i] > end_time)):
-                return False
+        if not ((other_booking.start_time < start_time and other_booking.end_time <= start_time) or (other_booking.start_time >= end_time and other_booking.end_time > end_time)):
+            return False
         return True
     
     
@@ -59,7 +66,7 @@ class LabEquipment():
     def __init__(self, schedule):
         self.schedule = schedule
         
-    def new_keyses(self, device, date):
+    def __new_cases(self, device, date):
         '''
         Функция добавления новых значений даты и инвентаря, если они отсутствуют
         '''
@@ -68,7 +75,9 @@ class LabEquipment():
             self.schedule[device] = {}
             print ('we have new device: ', device)
         if date not in self.schedule[device].keys():
-            self.schedule[device][date] = ([],[],[])
+            self.schedule[device][date] = {'start_time': [],
+                                           'end_time':[],
+                                           'user': []}
             print ('we have new date: ', date)
         
         return self
@@ -85,26 +94,25 @@ class LabEquipment():
         Проверка является ли время для брони свободным. В случае, если время занято, возращает имя забронировавшего человека.
         '''
 
-        for i in range(len(self.schedule[device][date][0])):
-            if not ((self.schedule[device][date][0][i] < start_time and self.schedule[device][date][1][i] <= start_time) or (self.schedule[device][date][0][i] >= end_time and self.schedule[device][date][1][i] > end_time)):
-                busy_dude = self.schedule[device][date][2][i]
-                return False, busy_dude
+        for i in range(len(self.schedule[device][date]['start_time'])):
+            if not ((self.schedule[device][date]['start_time'][i] < start_time and self.schedule[device][date]['end_time'][i] <= start_time) or (self.schedule[device][date]['start_time'][i] >= end_time and self.schedule[device][date]['end_time'][i] > end_time)):
+                busy_dude = self.schedule[device][date]['user'][i]
+                return busy_dude
         return True
        
     def add_time(self, start_time, end_time, device, date, name):
         '''
-        Побавление новой брони в расписание, если время свободно. 
+        Добавление новой брони в расписание, если время свободно. 
         '''
         just_ones = self.is_available(start_time, end_time, device, date)
-        
         if just_ones == True:
-            self.schedule[device][date][0].append(start_time)
-            self.schedule[device][date][1].append(end_time)
-            self.schedule[device][date][2].append(name)
-        elif just_ones[1] == name:
-            return 'Du hast das schon gemacht.'
+            self.schedule[device][date]['start_time'].append(start_time)
+            self.schedule[device][date]['end_time'].append(end_time)
+            self.schedule[device][date]['user'].append(name)
+        elif just_ones == name:
+            raise BookingError('Du hast das schon gemacht.')
         else:
-            return 'you can speak about this with ', just_ones[1]
+            raise BookingError('you can speak about this with ' + just_ones)
         
         return self
       
@@ -116,12 +124,14 @@ class LabEquipment():
         
         '''
         if add_new_device_or_date == True:
-            self = self.new_keyses(device, date)
+            self = self.__new_cases(device, date)
         else:
             self.error_masseges(device, date)
-            
+        
         self.add_time(start_time, end_time, device, date, name) 
-        return None
+
+    
+
     
     
 
@@ -130,6 +140,11 @@ class GenCodeInterpreter():
 
     def __init__(self):
         self.memory = [0]*5000
+    
+    def LetterError(Exception):
+        pass
+    def MemoryError(Exception):
+        pass
 
     def eval(self, code):
         '''
@@ -151,16 +166,17 @@ class GenCodeInterpreter():
 
         try:
             for letter in code:
-                if letter == "A": our_place += 1
-                elif letter == "T": our_place -= 1
-                elif letter == "G": self.memory[our_place] += 1
-                elif letter == "C": self.memory[our_place] -= 1
-                elif letter == "N": bufer += str(chr(self.memory[our_place]))
-                else: errors = errors + ' ' + letter + ' -  unknown command. '
-        except  IndexError:
-            errors = errors + str(our_place) + ' - index out of range. '
+                match letter:
+                    case "A": our_place += 1
+                    case "T": our_place -= 1
+                    case "G": self.memory[our_place] += 1
+                    case "C": self.memory[our_place] -= 1
+                    case "N": bufer += str(chr(self.memory[our_place]))
+                    case _ : raise LetterError('unknown command')
+        except  IndexError: 
+            raise MemoryError('Index out of memory')
         bufer = self.angl_rus(bufer)
-        return bufer, errors
+        return bufer
     
     def angl_rus(self,bufer):
         '''
@@ -277,7 +293,7 @@ class BiologicalSequence(ABC):   #Вау, абстрактные методы и
         pass
     
     @abstractmethod
-    def check_alphabet(self, seq):
+    def check_alphabet(self):
         pass
 
     
@@ -392,6 +408,3 @@ class AminoAcidSequence(NucleicAcidSequence):
     def is_palindrom(self):
         return [self.copy_palindrom(seq) for seq in self.seqs]
   
-
-
-
